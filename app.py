@@ -7,12 +7,34 @@ from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import shutil
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+# Enable CORS for all origins and methods
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Can be changed to specific domains if needed
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Directory to store uploaded files
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI()
+
+# Enable CORS for all origins and methods
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Can be changed to specific domains if needed
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @dataclasses.dataclass
 class UnitTranscription:
@@ -101,7 +123,7 @@ async def process_video(
                 start_timestamp=transcription.start_timestamp,
                 end_timestamp=transcription.end_timestamp,
                 original_text=transcription.content,
-                translated_text=translated_text
+                translated_text=translated_text['text_output']
             )
         )
 
