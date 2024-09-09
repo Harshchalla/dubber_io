@@ -15,33 +15,37 @@
       <p>Translate videos from one language to another with ease</p>
     </header>
 
+    <!-- Dropdown for Source and Target Languages -->
     <div class="dropdowns">
       <div class="dropdown-container">
         <label for="source-lang">Source File Language:</label>
         <select id="source-lang" name="source-lang">
-          <option value="en">English</option>
-          <option value="es">Spanish</option>
-          <option value="fr">French</option>
-          <option value="de">German</option>
+          <option value="English">English</option>
+          <option value="Spanish">Spanish</option>
+          <option value="French">French</option>
+          <option value="German">German</option>
+          <!-- Add more options as needed -->
         </select>
       </div>
 
       <div class="dropdown-container">
         <label for="target-lang">Translate To Language:</label>
         <select id="target-lang" name="target-lang">
-          <option value="en">English</option>
-          <option value="es">Spanish</option>
-          <option value="fr">French</option>
-          <option value="de">German</option>
+          <option value="English">English</option>
+          <option value="Spanish">Spanish</option>
+          <option value="French">French</option>
+          <option value="German">German</option>
+          <!-- Add more options as needed -->
         </select>
       </div>
     </div>
 
+    <!-- Video Upload Section -->
     <div class="video-section">
       <div class="video-box">
         <h2>Input Video</h2>
         <div class="upload-box">
-          <input type="file" id="input-video" class="upload-input">
+          <input type="file" id="input-video" class="upload-input" accept="video/*">
           <i class="fas fa-upload"></i>
           <p>Upload or paste video URL</p>
         </div>
@@ -56,9 +60,53 @@
       </div>
     </div>
 
+    <!-- Process Button -->
     <div class="process-container">
       <button class="process-btn"><i class="fas fa-play"></i> Process Video</button>
     </div>
   </div>
+
+  <!-- JavaScript to Handle Form Submission -->
+  <script>
+    document.querySelector('.process-btn').addEventListener('click', async (event) => {
+      event.preventDefault();
+
+      const formData = new FormData();
+      const videoFile = document.querySelector('#input-video').files[0];
+      const sourceLang = document.querySelector('#source-lang').value;
+      const targetLang = document.querySelector('#target-lang').value;
+
+      // Check if the video is selected
+      if (!videoFile) {
+        alert('Please upload a video file!');
+        return;
+      }
+
+      formData.append('video', videoFile);
+      formData.append('source_language', sourceLang);
+      formData.append('target_language', targetLang);
+
+      try {
+        // Make the POST request to the FastAPI endpoint
+        const response = await fetch('http://localhost:8000/process_video/', {
+          method: 'POST',
+          body: formData,
+        });
+
+        // Handle the response
+        if (response.ok) {
+          const result = await response.json();
+          console.log(result);
+          alert('Video processed successfully!');
+          // You can update the UI with the result (e.g., show the translated text or processed video)
+        } else {
+          alert('Error processing avideo. Please try again.');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Something went wrong. Please try again.');
+      }
+    });
+  </script>
 </body>
 </html>
