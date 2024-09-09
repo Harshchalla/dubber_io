@@ -71,60 +71,60 @@
 
   <!-- JavaScript to Handle Form Submission and Progress -->
   <script>
-    document.querySelector('.process-btn').addEventListener('click', (event) => {
+    document.querySelector('.process-btn').addEventListener('click', async (event) => {
       event.preventDefault();
-
+  
       const formData = new FormData();
       const videoFile = document.querySelector('#input-video').files[0];
       const sourceLang = document.querySelector('#source-lang').value;
       const targetLang = document.querySelector('#target-lang').value;
       const statusMessage = document.querySelector('#status-message');
-
+      const outputBox = document.querySelector('.output-box');  // Select output box to display translation
+  
       // Check if the video is selected
       if (!videoFile) {
         alert('Please upload a video file!');
         return;
       }
-
+  
       // Show uploading message
       statusMessage.innerText = 'Uploading video...';
-
+  
       formData.append('video', videoFile);
       formData.append('source_language', sourceLang);
       formData.append('target_language', targetLang);
-
-      // Use XMLHttpRequest for progress tracking
-      const xhr = new XMLHttpRequest();
-
-      // Track progress
-      xhr.upload.addEventListener('progress', (event) => {
-        if (event.lengthComputable) {
-          const percentComplete = Math.round((event.loaded / event.total) * 100);
-          statusMessage.innerText = `Uploading: ${percentComplete}%`;
+  
+      try {
+        // Fetch request to send the video and get the translated text
+        const response = await fetch('http://localhost:8000/process_video/', {
+          method: 'POST',
+          body: formData,
+        });
+  
+        if (!response.ok) {
+          throw new Error('Error processing video');
         }
-      });
-
-      // When the upload is complete
-      xhr.addEventListener('load', () => {
-        if (xhr.status === 200) {
-          statusMessage.innerText = 'Video uploaded and processed successfully!';
-          // Handle the response from the server here (if you need to show the translated video or text)
-          console.log(JSON.parse(xhr.responseText));
-        } else {
-          statusMessage.innerText = 'Error processing video. Please try again.';
-        }
-      });
-
-      // Handle errors during the upload
-      xhr.addEventListener('error', () => {
-        statusMessage.innerText = 'Something went wrong during the upload. Please try again.';
-      });
-
-      // Open the request and send the form data
-      xhr.open('POST', 'http://localhost:8000/process_video/');
-      
-      xhr.send(formData);
+  
+        // Parse the response and display the translated text
+        const result = await response.json();
+        let translatedText = '<h3>Translated Text:</h3>';
+        result.forEach(segment => {
+          translatedText += `<p><strong>[${segment.start_timestamp.toFixed(2)} - ${segment.end_timestamp.toFixed(2)}]:</strong> ${segment.translated_text}</p>`;
+        });
+        outputBox.innerHTML = translatedText;  // Display the translated text in the output box
+  
+        // Set status message to success
+        statusMessage.innerText = 'Video uploaded and processed successfully!';
+  
+      } catch (error) {
+        // Handle errors and update status message
+        console.error('Error:', error);
+        statusMessage.innerText = 'Error processing video. Please try again.';
+      }
     });
   </script>
+  
+
+  
 </body>
 </html>
