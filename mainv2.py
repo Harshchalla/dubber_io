@@ -1,7 +1,8 @@
 import dataclasses
-
+import requests
 import whisper
 from moviepy.video.io.VideoFileClip import VideoFileClip
+import replicate
 
 
 @dataclasses.dataclass
@@ -42,10 +43,32 @@ def audio_transcription(input_audio_clip="input_audio.mp3"):
     #         f.write(f"[{start_time:.2f} - {end_time:.2f}] {text}\n")
 
 
+def get_translation(text, source_language = "English", target_language= "French"):
+    client = replicate.Client(api_token="r8_BTqakpJGYn1aNRYyBCW7QaQSE7ppbBc0XI7Y0")
+
+    output = client.run(
+        "cjwbw/seamless_communication:668a4fec05a887143e5fe8d45df25ec4c794dd43169b9a11562309b2d45873b0",
+        input={
+            "task_name": "T2TT (Text to Text translation)",
+            "input_text": text,
+            "input_text_language": source_language,  # Specify input language here
+            "target_language_text_only": target_language  # Target language for translation
+        }
+    )
+
+    return output
+
+
 def main():
     preprocess_clip()
     transcriptions = audio_transcription()
-    print(transcriptions)
+    print("\nTranslated Transcriptions:")
+    for transcription in transcriptions:
+        translated_text = get_translation(transcription.content, source_language="English", target_language="French")
+        print(f"[{transcription.start_timestamp:.2f} - {transcription.end_timestamp:.2f}] {translated_text}")
+
+
+
 
 
 if __name__ == "__main__":
