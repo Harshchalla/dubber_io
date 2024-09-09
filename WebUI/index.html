@@ -119,13 +119,10 @@
 
           try {
             // Fetch request to send the video and get the translated text
-            const response = await fetch(
-              "http://localhost:8000/process_video/",
-              {
-                method: "POST",
-                body: formData,
-              },
-            );
+            const response = await fetch("/process_video/", {
+              method: "POST",
+              body: formData,
+            });
 
             if (!response.ok) {
               throw new Error("Error processing video");
@@ -140,7 +137,7 @@
             // Display the video in the output box
             const outputEmbed = document.querySelector("#output-embed");
             outputBox.innerHTML = "";
-            outputEmbed.src = `http://localhost:8000${videoUrl}`;
+            outputEmbed.src = videoUrl;
             outputBox.appendChild(outputEmbed);
 
             // Show success message
