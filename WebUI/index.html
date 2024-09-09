@@ -58,9 +58,18 @@
               accept="video/*"
             />
             <i class="fas fa-upload"></i>
-            <p>Upload or paste video URL</p>
+            <p id="file-name">Upload or paste video URL</p>
           </div>
         </div>
+
+        <script>
+          const inputFile = document.getElementById("input-video");
+          const fileName = document.getElementById("file-name");
+
+          inputFile.addEventListener("change", () => {
+            fileName.innerText = inputFile.value.split("\\").pop();
+          });
+        </script>
 
         <!--
         <div class="video-box">
