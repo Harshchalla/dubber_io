@@ -1,130 +1,158 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fancy Video Translation UI</title>
-  <link rel="stylesheet" href="styles.css">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-</head>
-<body>
-  <div class="wrapper">
-    <header>
-      <h1><i class="fas fa-video"></i> Video Translation Interface</h1>
-      <p>Translate videos from one language to another with ease</p>
-    </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fancy Video Translation UI</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1><i class="fas fa-video"></i> Video Translation Interface</h1>
+        <p>Translate videos from one language to another with ease</p>
+      </header>
 
-    <!-- Dropdown for Source and Target Languages -->
-    <div class="dropdowns">
-      <div class="dropdown-container">
-        <label for="source-lang">Source File Language:</label>
-        <select id="source-lang" name="source-lang">
-          <option value="English">English</option>
-          <option value="Spanish">Spanish</option>
-          <option value="French">French</option>
-          <option value="German">German</option>
-          <!-- Add more options as needed -->
-        </select>
-      </div>
+      <!-- Dropdown for Source and Target Languages -->
+      <div class="dropdowns">
+        <div class="dropdown-container">
+          <label for="source-lang">Source File Language:</label>
+          <select id="source-lang" name="source-lang">
+            <option value="English">English</option>
+            <option value="Spanish">Spanish</option>
+            <option value="French">French</option>
+            <option value="German">German</option>
+            <!-- Add more options as needed -->
+          </select>
+        </div>
 
-      <div class="dropdown-container">
-        <label for="target-lang">Translate To Language:</label>
-        <select id="target-lang" name="target-lang">
-          <option value="English">English</option>
-          <option value="Spanish">Spanish</option>
-          <option value="French">French</option>
-          <option value="German">German</option>
-          <!-- Add more options as needed -->
-        </select>
-      </div>
-    </div>
-
-    <!-- Video Upload Section -->
-    <div class="video-section">
-      <div class="video-box">
-        <h2>Input Video</h2>
-        <div class="upload-box">
-          <input type="file" id="input-video" class="upload-input" accept="video/*">
-          <i class="fas fa-upload"></i>
-          <p>Upload or paste video URL</p>
+        <div class="dropdown-container">
+          <label for="target-lang">Translate To Language:</label>
+          <select id="target-lang" name="target-lang">
+            <option value="English">English</option>
+            <option value="Spanish">Spanish</option>
+            <option value="French">French</option>
+            <option value="German">German</option>
+            <!-- Add more options as needed -->
+          </select>
         </div>
       </div>
 
-      <div class="video-box">
-        <h2>Output Video</h2>
-        <div class="output-box">
-          <i class="fas fa-film"></i>
-          <p>Processed video will appear here</p>
+      <!-- Video Upload Section -->
+      <div class="video-section">
+        <div class="video-box">
+          <h2>Input Video</h2>
+          <div class="upload-box">
+            <input
+              type="file"
+              id="input-video"
+              class="upload-input"
+              accept="video/*"
+            />
+            <i class="fas fa-upload"></i>
+            <p>Upload or paste video URL</p>
+          </div>
+        </div>
+
+        <!--
+        <div class="video-box">
+          <h2>Output Video</h2>
+          <div class="output-box">
+            <i class="fas fa-film"></i>
+            <p>Processed video will appear here</p>
+          </div>
+        </div>
+      -->
+        <div class="video-box">
+          <h2>Output Video</h2>
+          <div class="output-box">
+            <embed id="output-embed" src="" type="video/mp4" controls />
+          </div>
         </div>
       </div>
+
+      <!-- Process Button -->
+      <div class="process-container">
+        <button class="process-btn">
+          <i class="fas fa-play"></i> Process Video
+        </button>
+      </div>
+
+      <!-- Display status messages here -->
+      <p id="status-message" style="text-align: center"></p>
     </div>
 
-    <!-- Process Button -->
-    <div class="process-container">
-      <button class="process-btn"><i class="fas fa-play"></i> Process Video</button>
-    </div>
+    <!-- JavaScript to Handle Form Submission and Progress -->
+    <script>
+      document
+        .querySelector(".process-btn")
+        .addEventListener("click", async (event) => {
+          event.preventDefault();
 
-    <!-- Display status messages here -->
-    <p id="status-message" style="text-align:center;"></p>
-  </div>
+          const formData = new FormData();
+          const videoFile = document.querySelector("#input-video").files[0];
+          const sourceLang = document.querySelector("#source-lang").value;
+          const targetLang = document.querySelector("#target-lang").value;
+          const statusMessage = document.querySelector("#status-message");
+          const outputBox = document.querySelector(".output-box"); // Select output box to display translation
 
-  <!-- JavaScript to Handle Form Submission and Progress -->
-  <script>
-    document.querySelector('.process-btn').addEventListener('click', async (event) => {
-      event.preventDefault();
-  
-      const formData = new FormData();
-      const videoFile = document.querySelector('#input-video').files[0];
-      const sourceLang = document.querySelector('#source-lang').value;
-      const targetLang = document.querySelector('#target-lang').value;
-      const statusMessage = document.querySelector('#status-message');
-      const outputBox = document.querySelector('.output-box');  // Select output box to display translation
-  
-      // Check if the video is selected
-      if (!videoFile) {
-        alert('Please upload a video file!');
-        return;
-      }
-  
-      // Show uploading message
-      statusMessage.innerText = 'Uploading video...';
-  
-      formData.append('video', videoFile);
-      formData.append('source_language', sourceLang);
-      formData.append('target_language', targetLang);
-  
-      try {
-        // Fetch request to send the video and get the translated text
-        const response = await fetch('http://localhost:8000/process_video/', {
-          method: 'POST',
-          body: formData,
+          // Check if the video is selected
+          if (!videoFile) {
+            alert("Please upload a video file!");
+            return;
+          }
+
+          // Show uploading message
+          statusMessage.innerText = "Uploading video...";
+
+          formData.append("video", videoFile);
+          formData.append("source_language", sourceLang);
+          formData.append("target_language", targetLang);
+
+          try {
+            // Fetch request to send the video and get the translated text
+            const response = await fetch(
+              "http://localhost:8000/process_video/",
+              {
+                method: "POST",
+                body: formData,
+              },
+            );
+
+            if (!response.ok) {
+              throw new Error("Error processing video");
+            }
+
+            // Parse the response and display the translated text
+            const result = await response.json();
+
+            // Get the video URL from the response
+            const videoUrl = result.video_url;
+
+            // Display the video in the output box
+            const outputEmbed = document.querySelector("#output-embed");
+            outputBox.innerHTML = "";
+            outputEmbed.src = `http://localhost:8000${videoUrl}`;
+            outputBox.appendChild(outputEmbed);
+
+            // Show success message
+            statusMessage.innerText =
+              "Video translation completed successfully!";
+          } catch (error) {
+            // Handle errors and update status message
+            console.error("Error:", error);
+            statusMessage.innerText =
+              "Error processing video. Please try again.";
+          }
         });
-  
-        if (!response.ok) {
-          throw new Error('Error processing video');
-        }
-  
-        // Parse the response and display the translated text
-        const result = await response.json();
-        let translatedText = '<h3>Translated Text:</h3>';
-        result.forEach(segment => {
-          translatedText += `<p><strong>[${segment.start_timestamp.toFixed(2)} - ${segment.end_timestamp.toFixed(2)}]:</strong> ${segment.translated_text}</p>`;
-        });
-        outputBox.innerHTML = translatedText;  // Display the translated text in the output box
-  
-        // Set status message to success
-        statusMessage.innerText = 'Video uploaded and processed successfully!';
-  
-      } catch (error) {
-        // Handle errors and update status message
-        console.error('Error:', error);
-        statusMessage.innerText = 'Error processing video. Please try again.';
-      }
-    });
-  </script>
-  
-
-  
-</body>
+    </script>
+  </body>
 </html>

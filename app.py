@@ -5,25 +5,13 @@ import replicate
 from moviepy.video.io.VideoFileClip import VideoFileClip
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import shutil
-from fastapi.middleware.cors import CORSMiddleware
-
-app = FastAPI()
-
-# Enable CORS for all origins and methods
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Can be changed to specific domains if needed
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 # Directory to store uploaded files
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
-from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 

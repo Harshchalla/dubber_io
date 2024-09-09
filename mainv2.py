@@ -231,7 +231,8 @@ async def main(video_filepath: str, source_language: str, target_language: str):
 
 
     # TODO: (rohan) fix lip sync and use below code
-    return
+    return final_videopath
+
     tasks = [translate_audio(transcription.content, audio_filepath, target_language, i) for i, transcription in enumerate(translated_transcriptions)]
     translated_audio_files = await asyncio.gather(*tasks)
     
@@ -247,7 +248,62 @@ async def main(video_filepath: str, source_language: str, target_language: str):
     final_video.write_videofile(f'{os.path.splitext(video_filepath)[0]}_translated_{target_language}.mp4')
     return 
 
+from fastapi import FastAPI, File, UploadFile, Form
+from fastapi.middleware.cors import CORSMiddleware
+# Directory to store uploaded files
+UPLOAD_DIR = "uploads"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+app = FastAPI()
+
+# Enable CORS for all origins and methods
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Can be changed to specific domains if needed
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+import shutil
+import asyncio
+from fastapi.responses import JSONResponse
+from fastapi import HTTPException
+from starlette.responses import FileResponse
+
+# Endpoint for video upload, transcription, and translation
+@app.post("/process_video/")
+async def process_video(
+    video: UploadFile = File(...),
+    source_language: str = Form(...),
+    target_language: str = Form(...)
+):
+    # Save the uploaded video
+    video_path = os.path.join(UPLOAD_DIR, video.filename)
+    with open(video_path, "wb") as buffer:
+        shutil.copyfileobj(video.file, buffer)
+
+    try:
+        final_videopath = await main(video_path, source_language, target_language)
+        if not final_videopath:
+            return JSONResponse(content={"error": "Failed to process video"}, status_code=500)
+        video_url = f"/video/{os.path.basename(final_videopath)}"
+        return JSONResponse(content={"video_url": video_url}, status_code=200)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Endpoint to serve the translated video
+@app.get("/video/{video_name}")
+async def get_video(video_name):
+    video_path = video_name
+    return FileResponse(video_path, media_type="video/mp4")
+
+
 if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="localhost", port=8000)
+
+    '''
     #detect_and_crop_faces('input_video_first_frame.png', 0.8)
     #exit()
     #ret = sync_lips('input_video_translated_to_fr.wav', './input_video.mp4')
@@ -260,7 +316,8 @@ if __name__ == "__main__":
     print('Total time taken:', end-start, 'secs')
     exit()
 
-    text = '''Los demócratas lo saben y yo no lo he leído porque no sé de qué se trata. Es más fácil que decir que lo leí y sabes todas las demás cosas. No, no he leído ninguno, y hay cosas que no a todos les gustaría, pero hay algunas que no tienen nada que ver conmigo.'''
+    text = 'Los demócratas lo saben y yo no lo he leído porque no sé de qué se trata. Es más fácil que decir que lo leí y sabes todas las demás cosas. No, no he leído ninguno, y hay cosas que no a todos les gustaría, pero hay algunas que no tienen nada que ver conmigo.'
     source_audiopath = './tmp/trump_trimmed.mp3'
     translate_audio(text, source_audiopath, 'es')
 
+    '''
