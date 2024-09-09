@@ -3,6 +3,7 @@ import requests
 import whisper
 from moviepy.video.io.VideoFileClip import VideoFileClip
 import replicate
+import os
 
 
 @dataclasses.dataclass
@@ -44,7 +45,12 @@ def audio_transcription(input_audio_clip="input_audio.mp3"):
 
 
 def get_translation(text, source_language = "English", target_language= "French"):
-    client = replicate.Client(api_token="r8_BTqakpJGYn1aNRYyBCW7QaQSE7ppbBc0XI7Y0")
+    api_token = os.getenv("REPLICATE_API_TOKEN")
+
+    if not api_token:
+        raise EnvironmentError("API token not found. Please set the REPLICATE_API_TOKEN environment variable.")
+
+    client = replicate.Client(api_token)
 
     output = client.run(
         "cjwbw/seamless_communication:668a4fec05a887143e5fe8d45df25ec4c794dd43169b9a11562309b2d45873b0",
@@ -57,7 +63,6 @@ def get_translation(text, source_language = "English", target_language= "French"
     )
 
     return output
-
 
 def main():
     preprocess_clip()
